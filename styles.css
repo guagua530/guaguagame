@@ -1,0 +1,531 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #0f0f1e;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    background-image: radial-gradient(circle at center, #1a1a2e 0%, #0f0f1e 100%);
+    margin: 0;
+    padding: 0;
+}
+
+#game-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 1200px;
+    max-height: 800px;
+    background-color: rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0 30px rgba(66, 99, 235, 0.3);
+    overflow: hidden;
+    border-radius: 10px;
+    border: 1px solid rgba(66, 99, 235, 0.5);
+}
+
+#game-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+#ui-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    pointer-events: none;
+    width: calc(100% - 40px);
+}
+
+#health-bar {
+    width: 200px;
+    height: 16px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
+#health-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(to right, #ff3434, #ff5757);
+    transition: width 0.3s;
+    box-shadow: 0 0 8px #ff3434;
+}
+
+#level-info {
+    font-size: 16px;
+    margin-bottom: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: inline-block;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-weight: 500;
+}
+
+#skill-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(10, 10, 25, 0.9);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    z-index: 100;
+    width: 90%;
+    max-width: 1000px;
+    pointer-events: auto;
+    box-shadow: 0 0 30px rgba(66, 99, 235, 0.5);
+    border: 2px solid rgba(66, 99, 235, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#skill-container h2 {
+    margin-bottom: 30px;
+    color: #4263eb;
+    font-size: 28px;
+    text-shadow: 0 0 10px rgba(66, 99, 235, 0.5);
+}
+
+#skill-options {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 30px;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    #skill-options {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .skill-option {
+        width: 80% !important;
+        max-width: 300px !important;
+    }
+}
+
+.skill-option {
+    background-color: rgba(30, 30, 60, 0.8);
+    padding: 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: calc(33.33% - 20px);
+    max-width: 300px;
+    min-width: 200px;
+    border: 1px solid rgba(66, 99, 235, 0.3);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+}
+
+.skill-option:hover {
+    background-color: rgba(66, 99, 235, 0.2);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    border-color: rgba(66, 99, 235, 0.8);
+}
+
+.skill-name {
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #ffcc00;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.skill-name span {
+    margin-right: 10px;
+    font-size: 28px;
+}
+
+.skill-description {
+    font-size: 16px;
+    color: #e0e0e0;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.skill-rarity {
+    margin-top: 15px;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+#game-over, #start-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at center, rgba(10, 10, 25, 0.9) 0%, rgba(5, 5, 15, 0.95) 100%);
+    z-index: 30;
+    backdrop-filter: blur(5px);
+}
+
+#start-screen h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+    color: #4263eb;
+    text-shadow: 0 0 15px rgba(66, 99, 235, 0.7);
+    letter-spacing: 2px;
+}
+
+#start-screen p {
+    font-size: 18px;
+    margin-bottom: 30px;
+    max-width: 80%;
+    text-align: center;
+    color: #e0e0e0;
+}
+
+#game-over h2 {
+    font-size: 42px;
+    margin-bottom: 20px;
+    color: #ff3434;
+    text-shadow: 0 0 15px rgba(255, 52, 52, 0.7);
+}
+
+#game-over p {
+    font-size: 24px;
+    margin-bottom: 30px;
+    color: #e0e0e0;
+}
+
+button {
+    background: linear-gradient(135deg, #4263eb, #3b56d9);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 18px;
+    border-radius: 30px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s;
+    font-weight: 500;
+    letter-spacing: 1px;
+    box-shadow: 0 5px 15px rgba(66, 99, 235, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+button:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
+}
+
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(66, 99, 235, 0.6);
+}
+
+button:hover:before {
+    left: 100%;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* 经验条样式 */
+.exp-bar-container {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: calc(100% - 40px);
+    height: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 10px rgba(66, 99, 235, 0.3);
+}
+
+.exp-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, #4263eb, #5e7bf7);
+    transition: width 0.3s;
+    box-shadow: 0 0 8px #4263eb;
+}
+
+.exp-text {
+    position: absolute;
+    bottom: 35px;
+    left: 20px;
+    font-size: 14px;
+    color: #fff;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+/* 游戏统计信息 */
+.stats-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 8px;
+    z-index: 10;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: right;
+}
+
+.stats-item {
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.stats-value {
+    font-weight: 600;
+    color: #4263eb;
+}
+
+/* 波次信息 */
+.wave-info {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 8px 15px;
+    border-radius: 20px;
+    z-index: 10;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 16px;
+    font-weight: 500;
+    color: #e0e0e0;
+    box-shadow: 0 0 10px rgba(66, 99, 235, 0.3);
+}
+
+/* 调试面板样式优化 */
+#debug-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba(10, 10, 25, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    z-index: 9999;
+    border: 1px solid rgba(66, 99, 235, 0.5);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
+}
+
+#debug-panel button {
+    margin: 5px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+#debug-panel button:hover {
+    background: linear-gradient(135deg, #27ae60, #219653);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* 顶部状态栏 */
+.top-bar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.status-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-icon {
+    font-size: 20px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 波次计时器 */
+.wave-timer {
+    width: 100%;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.wave-timer-fill {
+    height: 100%;
+    background: linear-gradient(to right, #4263eb, #42a5f5);
+    width: 0%;
+    transition: width 0.3s;
+}
+
+/* 控制信息 */
+.controls-info {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.control-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.control-key {
+    background-color: rgba(66, 99, 235, 0.2);
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-weight: 600;
+    border: 1px solid rgba(66, 99, 235, 0.5);
+    color: #4263eb;
+}
+
+.control-desc {
+    font-size: 14px;
+    color: #e0e0e0;
+}
+
+/* 游戏结束统计 */
+.stats-summary {
+    display: flex;
+    gap: 30px;
+    margin: 20px 0;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-radius: 10px;
+    min-width: 120px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-icon {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 600;
+    color: #4263eb;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #e0e0e0;
+}
+
+.skill-level {
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 8px;
+    display: inline-block;
+}
+
+.skill-next-level {
+    margin-top: 10px;
+    font-size: 14px;
+    text-align: left;
+    padding: 8px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+}
+
+.skill-next-level span {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: #ffcc00;
+}
+
+.skill-next-level ul {
+    margin: 5px 0 0 15px;
+    padding: 0;
+    list-style-type: disc;
+}
+
+.skill-next-level li {
+    margin-bottom: 3px;
+}
+
+.skill-max-level {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: bold;
+} 

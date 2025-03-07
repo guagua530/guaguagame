@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>肉鸽冒险</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        #skill-container {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            z-index: 9999 !important;
+            width: 90% !important;
+            max-width: 1000px !important;
+            background-color: rgba(10, 10, 25, 0.95) !important;
+            box-shadow: 0 0 50px rgba(66, 99, 235, 0.7) !important;
+            border: 2px solid rgba(66, 99, 235, 0.7) !important;
+        }
+        
+        #skill-options {
+            display: flex !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            gap: 20px !important;
+        }
+        
+        .skill-option {
+            width: calc(33.33% - 20px) !important;
+            max-width: 300px !important;
+            min-width: 200px !important;
+        }
+    </style>
+    <script>
+        // 全局错误处理
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error('JavaScript错误:', message);
+            console.error('文件:', source);
+            console.error('行号:', lineno);
+            console.error('列号:', colno);
+            console.error('错误对象:', error);
+            
+            // 在页面上显示错误信息
+            const errorDiv = document.createElement('div');
+            errorDiv.style.position = 'fixed';
+            errorDiv.style.top = '0';
+            errorDiv.style.left = '0';
+            errorDiv.style.width = '100%';
+            errorDiv.style.padding = '10px';
+            errorDiv.style.backgroundColor = 'red';
+            errorDiv.style.color = 'white';
+            errorDiv.style.zIndex = '9999';
+            errorDiv.textContent = `错误: ${message} (${source}:${lineno})`;
+            document.body.appendChild(errorDiv);
+            
+            return true; // 阻止默认错误处理
+        };
+        
+        // 全局变量，用于存储游戏实例
+        let gameInstance = null;
+    </script>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        
+        <!-- 游戏UI -->
+        <div id="ui-container">
+            <!-- 顶部状态栏 -->
+            <div class="top-bar">
+                <!-- 等级 -->
+                <div class="status-group">
+                    <div class="status-icon">⭐</div>
+                    <div id="level-info">等级: <span id="level">1</span></div>
+                </div>
+            </div>
+            
+            <!-- 波次信息 -->
+            <div class="wave-info">
+                波次 <span id="wave-number">1</span>
+                <div class="wave-timer">
+                    <div class="wave-timer-fill"></div>
+                </div>
+            </div>
+            
+            <!-- 游戏统计 -->
+            <div class="stats-container">
+                <div class="stats-item">时间: <span id="game-time" class="stats-value">00:00</span></div>
+                <div class="stats-item">击杀: <span id="kill-count" class="stats-value">0</span></div>
+                <div class="stats-item">得分: <span id="score" class="stats-value">0</span></div>
+            </div>
+            
+            <!-- 经验条 -->
+            <div class="exp-bar-container">
+                <div class="exp-bar-fill" id="exp-fill"></div>
+                <div class="exp-text">经验: <span id="exp-current">0</span>/<span id="exp-next">100</span></div>
+            </div>
+            
+            <!-- 技能选择界面 -->
+            <div id="skill-container" class="hidden" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999;">
+                <h2>选择一项技能</h2>
+                <div id="skill-options"></div>
+            </div>
+        </div>
+        
+        <!-- 游戏结束界面 -->
+        <div id="game-over" class="hidden">
+            <h2>游戏结束</h2>
+            <p>你的分数: <span id="final-score">0</span></p>
+            <div class="stats-summary">
+                <div class="stat-item">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-value" id="final-time">00:00</div>
+                    <div class="stat-label">生存时间</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">💀</div>
+                    <div class="stat-value" id="final-kills">0</div>
+                    <div class="stat-label">击杀数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-value" id="final-level">1</div>
+                    <div class="stat-label">最终等级</div>
+                </div>
+            </div>
+            <button id="restart-button">重新开始</button>
+        </div>
+        
+        <!-- 开始界面 -->
+        <div id="start-screen">
+            <h1>肉鸽冒险</h1>
+            <p>在这个危险的世界中生存，击败敌人，提升你的能力。每次升级可以选择新的技能，创造独特的构建。</p>
+            <div class="controls-info">
+                <div class="control-item">
+                    <div class="control-key">W A S D</div>
+                    <div class="control-desc">移动角色</div>
+                </div>
+                <div class="control-item">
+                    <div class="control-key">空格</div>
+                    <div class="control-desc">冲刺</div>
+                </div>
+                <div class="control-item">
+                    <div class="control-key">自动</div>
+                    <div class="control-desc">攻击最近的敌人</div>
+                </div>
+            </div>
+            <button id="start-button" onclick="startGameDirectly()">开始游戏</button>
+        </div>
+    </div>
+
+    <!-- 游戏脚本 -->
+    <script src="js/utils.js"></script>
+    <script src="js/graphics.js"></script>
+    <script src="js/entity.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/enemy.js"></script>
+    <script src="js/projectile.js"></script>
+    <script src="js/skills.js"></script>
+    <script src="js/game.js"></script>
+    
+    <script>
+        // 直接在HTML中定义的开始游戏函数
+        function startGameDirectly() {
+            console.log("Start game directly called from inline script");
+            if (gameInstance) {
+                gameInstance.start();
+            } else {
+                console.error("Game instance not available");
+            }
+        }
+        
+        // 确保在页面完全加载后初始化游戏
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM fully loaded");
+            
+            try {
+                // 初始化游戏
+                gameInstance = new Game();
+                
+                // 监听玩家攻击事件
+                document.addEventListener('playerAttack', (e) => {
+                    console.log("Player attack event triggered");
+                    const projectile = e.detail.projectile;
+                    gameInstance.addProjectile(projectile);
+                });
+                
+                // 监听玩家升级事件
+                document.addEventListener('playerLevelUp', () => {
+                    console.log("Player level up event triggered");
+                    gameInstance.handlePlayerLevelUp();
+                });
+                
+                // 监听投射物效果事件
+                document.addEventListener('projectileEffect', (e) => {
+                    console.log("Projectile effect event triggered");
+                    const effects = e.detail.effects;
+                    if (Array.isArray(effects)) {
+                        effects.forEach(effect => gameInstance.addEffect(effect));
+                    } else {
+                        gameInstance.addEffect(effects);
+                    }
+                });
+                
+                // 监听投射物分裂事件
+                document.addEventListener('projectileSplit', (e) => {
+                    console.log("Projectile split event triggered");
+                    const splitProjectiles = e.detail.projectiles;
+                    splitProjectiles.forEach(projectile => gameInstance.addProjectile(projectile));
+                });
+                
+                // 重新开始按钮事件
+                document.getElementById('restart-button').addEventListener('click', function() {
+                    console.log("Restart button clicked");
+                    gameInstance.restart();
+                });
+                
+            } catch (error) {
+                console.error("Error initializing game:", error);
+            }
+        });
+    </script>
+</body>
+</html> 
